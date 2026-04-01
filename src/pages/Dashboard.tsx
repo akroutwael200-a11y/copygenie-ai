@@ -39,6 +39,26 @@ const Dashboard = () => {
   }
 
   const handleGenerate = () => {
+  const today = new Date().toDateString();
+const storedDate = localStorage.getItem("usage_date");
+let usageCount = parseInt(localStorage.getItem("usage_count") || "0");
+
+if (storedDate !== today) {
+  localStorage.setItem("usage_date", today);
+  localStorage.setItem("usage_count", "0");
+  usageCount = 0;
+}
+
+if (usageCount >= 5) {
+  toast({
+    title: "Free limit reached",
+    description: "You reached the daily free limit. Upgrade to Pro for unlimited generations.",
+    variant: "destructive",
+  });
+  return;
+}
+
+localStorage.setItem("usage_count", String(usageCount + 1));
     if (!productName.trim()) {
       toast({ title: "Please enter a product name", variant: "destructive" });
       return;
