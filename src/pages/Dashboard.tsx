@@ -159,12 +159,12 @@ localStorage.setItem("usage_count", String(usageCount + 1));
       You reached the free daily limit. Upgrade to unlock unlimited generations.
     </p>
 
-    <a
-      href="/pricing"
-      className="inline-block mt-3 px-4 py-2 rounded-lg bg-black text-white text-sm"
-    >
-      Upgrade Now
-    </a>
+    <Link
+  to="/pricing"
+  className="inline-block mt-3 px-4 py-2 rounded-lg bg-black text-white text-sm"
+>
+  Upgrade Now
+</Link>
   </div>
 )}
       <div className="container py-8">
