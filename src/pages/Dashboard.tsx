@@ -24,6 +24,7 @@ const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem("pb_user") || "null");
 
   const [productName, setProductName] = useState("");
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [category, setCategory] = useState("");
   const [features, setFeatures] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
@@ -50,9 +51,10 @@ if (storedDate !== today) {
 }
 
 if (usageCount >= 5) {
+  setShowUpgrade(true);
   toast({
     title: "Free limit reached",
-    description: "You reached the daily free limit. Upgrade to Pro for unlimited generations.",
+    description: "Upgrade to Pro for unlimited generations.",
     variant: "destructive",
   });
   return;
@@ -150,7 +152,21 @@ localStorage.setItem("usage_count", String(usageCount + 1));
           </div>
         </div>
       </header>
+      {showUpgrade && (
+  <div className="p-4 rounded-xl border bg-white shadow-sm mb-4">
+    <h3 className="text-lg font-semibold">Upgrade to Pro</h3>
+    <p className="text-sm text-gray-600">
+      You reached the free daily limit. Upgrade to unlock unlimited generations.
+    </p>
 
+    <a
+      href="/pricing"
+      className="inline-block mt-3 px-4 py-2 rounded-lg bg-black text-white text-sm"
+    >
+      Upgrade Now
+    </a>
+  </div>
+)}
       <div className="container py-8">
         <h1 className="font-heading text-2xl font-bold md:text-3xl">Product Description Generator</h1>
         <p className="mt-1 text-sm text-muted-foreground">Fill in your product details and let AI craft the perfect copy.</p>
