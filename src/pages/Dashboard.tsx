@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; 
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,20 @@ interface GeneratedContent {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [remaining, setRemaining] = useState(5);
+  useEffect(() => {
+  const today = new Date().toDateString();
+  const storedDate = localStorage.getItem("usage_date");
+  const usageCount = parseInt(localStorage.getItem("usage_count") || "0");
+
+  if (storedDate !== today) {
+    localStorage.setItem("usage_date", today);
+    localStorage.setItem("usage_count", "0");
+    setRemaining(5);
+  } else {
+    setRemaining(Math.max(0, 5 - usageCount));
+  }
+}, []);
   const user = JSON.parse(localStorage.getItem("pb_user") || "null");
 
   const [productName, setProductName] = useState("");
@@ -48,6 +62,7 @@ if (storedDate !== today) {
   localStorage.setItem("usage_date", today);
   localStorage.setItem("usage_count", "0");
   usageCount = 0;
+  setRemaining(5);
 }
 
 if (usageCount >= 5) {
@@ -61,6 +76,7 @@ if (usageCount >= 5) {
 }
 
 localStorage.setItem("usage_count", String(usageCount + 1));
+    setRemaining(Math.max(0, 5 - (usageCount + 1)));
     if (!productName.trim()) {
       toast({ title: "Please enter a product name", variant: "destructive" });
       return;
@@ -226,6 +242,9 @@ localStorage.setItem("usage_count", String(usageCount + 1));
                   </Select>
                 </div>
               </div>
+              <p className="text-sm text-gray-500 mb-2">
+  Remaining generations today: <span className="font-semibold">{remaining}</span>/5
+</p>
               <Button variant="gradient" className="w-full gap-2" onClick={handleGenerate} disabled={loading}>
                 {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating...</> : <><Zap className="h-4 w-4" /> Generate Description</>}
               </Button>
