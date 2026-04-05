@@ -8,7 +8,7 @@ const plans = [
     name: "Free",
     price: "$0",
     desc: "Try it out",
-    features: ["5 generations/month", "Basic SEO title", "Short description", "Community support"],
+    features: ["5 generations/day", "Basic SEO title", "Short description", "Community support"],
     cta: "Get Started",
     featured: false,
   },
