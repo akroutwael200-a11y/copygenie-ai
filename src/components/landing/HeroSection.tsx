@@ -35,6 +35,50 @@ const HeroSection = () => (
           </a>
         </div>
         <p className="mt-4 text-xs text-muted-foreground">No credit card required · 5 free generations</p>
+        <div className="mt-12 grid gap-6 md:grid-cols-2 text-left">
+  <div className="rounded-2xl border border-border bg-background/70 p-6 shadow-sm">
+    <p className="text-sm font-semibold text-muted-foreground mb-3">
+      Example Input
+    </p>
+    <div className="space-y-3 text-sm">
+      <div>
+        <span className="font-semibold">Product:</span> Wireless Earbuds Pro
+      </div>
+      <div>
+        <span className="font-semibold">Category:</span> Electronics
+      </div>
+      <div>
+        <span className="font-semibold">Key Features:</span> Noise cancelling, 30h battery, fast charging, Bluetooth 5.3
+      </div>
+      <div>
+        <span className="font-semibold">Audience:</span> Students
+      </div>
+      <div>
+        <span className="font-semibold">Tone:</span> Professional
+      </div>
+    </div>
+  </div>
+
+  <div className="rounded-2xl border border-border bg-background/70 p-6 shadow-sm">
+    <p className="text-sm font-semibold text-muted-foreground mb-3">
+      Example Output
+    </p>
+    <div className="space-y-3 text-sm">
+      <div>
+        <span className="font-semibold">Title:</span> Wireless Earbuds Pro – Premium Sound & Comfort
+      </div>
+      <div>
+        <span className="font-semibold">Short Description:</span> Enjoy crystal-clear audio with noise cancellation and 30-hour battery life — perfect for studying and daily use.
+      </div>
+      <div>
+        <span className="font-semibold">SEO Keywords:</span> wireless earbuds, noise cancelling earbuds, bluetooth earbuds, earbuds for students
+      </div>
+      <div>
+        <span className="font-semibold">Ad Copy:</span> Upgrade your sound today. Lightweight, powerful, and built for everyday life.
+      </div>
+    </div>
+  </div>
+</div>
       </motion.div>
     </div>
   </section>
