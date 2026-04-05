@@ -34,7 +34,7 @@ const HeroSection = () => (
             <Button variant="outline" size="lg">See How It Works</Button>
           </a>
         </div>
-        <p className="mt-4 text-xs text-muted-foreground">No credit card required · 5 free generations</p>
+        <p className="mt-4 text-xs text-muted-foreground">No credit card required · 5 free générations per day</p>
         <div className="mt-12 grid gap-6 md:grid-cols-2 text-left">
   <div className="rounded-2xl border border-border bg-background/70 p-6 shadow-sm">
     <p className="text-sm font-semibold text-muted-foreground mb-3">
