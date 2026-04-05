@@ -10,7 +10,7 @@ const plans = [
     price: "$0",
     desc: "Perfect for trying it out",
     features: {
-      "Generations per month": "5",
+      "Generations per day": "5",
       "SEO Title": true,
       "Short Description": true,
       "Long Description": false,
