@@ -41,7 +41,10 @@ STRICT RULES:
 7. Grammar must be perfect; copy must be ready to publish in an online store with zero editing.
 8. Avoid repetitive sentence structures and artificial-sounding marketing language.
 9. For SEO: place keywords naturally; never stuff them.
-10. For ads: adapt style per platform — Facebook (conversational, benefit-led), Instagram (visual, aspirational, hashtag-friendly), TikTok (bold, trend-aware, punchy hook).`;
+10. For ads: adapt style per platform — Facebook (conversational, benefit-led), Instagram (visual, aspirational, hashtag-friendly), TikTok (bold, trend-aware, punchy hook).
+
+OUTPUT FORMAT:
+${OUTPUT_CONTRACT}`;
 
 function buildPrompt(input: {
   productName: string;
@@ -122,12 +125,25 @@ Deno.serve(async (req) => {
       { baseURL: GATEWAY_URL, apiKey, model: MODEL },
       [{ role: "user", content: buildPrompt(body) }],
       SYSTEM_PROMPT,
-      copySchema,
     );
 
-    // One-shot feature: the gateway leg streams; we consume the final typed
-    // object server-side and return it as JSON.
-    const output = validateOutput(await result.experimental_output);
+    // One-shot feature: the gateway leg streams; we consume the final text
+    // server-side, parse the JSON object and return it.
+    const text = await result.text;
+    const cleaned = text
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/```\s*$/, "")
+      .trim();
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch {
+      console.error("generate-copy: unparseable model output:", text.slice(0, 500));
+      throw new Error("AI returned an invalid result.");
+    }
+
+    const output = validateOutput(parsed);
 
     return new Response(JSON.stringify(output), {
       status: 200,
