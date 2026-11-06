@@ -1,5 +1,5 @@
 import { createOpenAI } from "npm:@ai-sdk/openai@2";
-import { streamText, type ModelMessage } from "npm:ai@5";
+import { Output, streamText, type ModelMessage, type Schema } from "npm:ai@5";
 
 import {
   createLovableAiGatewayRunIdFetch,
@@ -11,6 +11,7 @@ export function createResponsesCall(
   config: { baseURL: string; apiKey: string; model: string },
   messages: ModelMessage[],
   instructions?: string,
+  outputSchema?: Schema,
 ) {
   const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(request));
   const provider = createOpenAI({
@@ -25,6 +26,7 @@ export function createResponsesCall(
     ...(instructions ? { instructions } : {}),
     messages,
     abortSignal: request.signal,
+    ...(outputSchema ? { experimental_output: Output.object({ schema: outputSchema }) } : {}),
     providerOptions: {
       openai: {
         store: false,
