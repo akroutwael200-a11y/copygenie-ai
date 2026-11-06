@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Zap, Copy, LogOut, History, Settings, Loader2 } from "lucide-react";
 
 interface GeneratedContent {
@@ -53,66 +54,70 @@ const Dashboard = () => {
     return null;
   }
 
-  const handleGenerate = () => {
-  const today = new Date().toDateString();
-const storedDate = localStorage.getItem("usage_date");
-let usageCount = parseInt(localStorage.getItem("usage_count") || "0");
-
-if (storedDate !== today) {
-  localStorage.setItem("usage_date", today);
-  localStorage.setItem("usage_count", "0");
-  usageCount = 0;
-  setRemaining(5);
-}
-
-if (usageCount >= 5) {
-  setShowUpgrade(true);
-  toast({
-    title: "Free limit reached",
-    description: "Upgrade to Pro for unlimited generations.",
-    variant: "destructive",
-  });
-  return;
-}
-
-localStorage.setItem("usage_count", String(usageCount + 1));
-    setRemaining(Math.max(0, 5 - (usageCount + 1)));
+  const handleGenerate = async () => {
     if (!productName.trim()) {
       toast({ title: "Please enter a product name", variant: "destructive" });
       return;
     }
 
+    const today = new Date().toDateString();
+    const storedDate = localStorage.getItem("usage_date");
+    let usageCount = parseInt(localStorage.getItem("usage_count") || "0");
+
+    if (storedDate !== today) {
+      localStorage.setItem("usage_date", today);
+      localStorage.setItem("usage_count", "0");
+      usageCount = 0;
+      setRemaining(5);
+    }
+
+    if (usageCount >= 5) {
+      setShowUpgrade(true);
+      toast({
+        title: "Free limit reached",
+        description: "Upgrade to Pro for unlimited generations.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
-    // Mock generation — replace with Lovable Cloud + AI when connected
-    setTimeout(() => {
-      const generated: GeneratedContent = {
-        seoTitle: `${productName} - Premium ${category || "Product"} | Best ${tone === "luxury" ? "Luxury" : "Quality"} ${category || "Item"} for ${targetAudience || "Everyone"}`,
-        shortDescription: `Discover the ${productName}, a ${tone} ${category || "product"} designed for ${targetAudience || "modern consumers"}. ${features ? `Featuring ${features.split(",")[0]?.trim()}.` : ""} ${price ? `Available at $${price}.` : ""}`,
-        longDescription: `Introducing the ${productName} — your ultimate ${category || "product"} solution. Crafted with precision and designed for ${targetAudience || "discerning customers"}, this ${tone} product delivers exceptional value.\n\n${features ? `Key highlights include: ${features}. Each feature has been carefully engineered to exceed your expectations.` : ""}\n\nWhether you're looking for reliability, performance, or style, the ${productName} checks every box. Join thousands of satisfied customers who have already made the switch.\n\n${price ? `At just $${price}, it's an investment that pays for itself.` : "Competitively priced for maximum value."}`,
-        bulletPoints: [
-          `Premium ${category || "product"} with superior quality materials`,
-          features ? `Features: ${features.split(",").slice(0, 2).join(", ")}` : "Advanced design with modern aesthetics",
-          `Perfect for ${targetAudience || "all users"} — versatile and reliable`,
-          `${tone === "luxury" ? "Luxury" : "Professional"} grade construction`,
-          price ? `Exceptional value at $${price}` : "Competitive pricing",
-        ],
-        seoKeywords: [
-          productName.toLowerCase(),
-          `best ${(category || "product").toLowerCase()}`,
-          `${(category || "product").toLowerCase()} for ${(targetAudience || "everyone").toLowerCase()}`,
-          `buy ${productName.toLowerCase()} online`,
-          `${tone} ${(category || "product").toLowerCase()}`,
-          `top rated ${(category || "product").toLowerCase()}`,
-        ],
-        adCopy: [
-          `🚀 ${productName} is HERE! ${features ? features.split(",")[0]?.trim() + "." : ""} Perfect for ${targetAudience || "you"}. ${price ? `Only $${price}!` : "Shop now!"} #${(category || "Product").replace(/\s/g, "")}`,
-          `Looking for the best ${(category || "product").toLowerCase()}? The ${productName} delivers ${tone} quality at an unbeatable price. Try it today! ✨`,
-          `Why settle for less? The ${productName} combines ${features ? features.split(",")[0]?.trim() : "top features"} with ${tone} design. ${targetAudience ? `Made for ${targetAudience}.` : ""} Order now →`,
-        ],
-      };
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-copy", {
+        body: {
+          productName: productName.trim(),
+          category: category.trim() || undefined,
+          features: features.trim() || undefined,
+          targetAudience: targetAudience.trim() || undefined,
+          price: price.trim() || undefined,
+          tone,
+          language,
+        },
+      });
 
+      if (error) {
+        let message = "Generation failed. Please try again.";
+        try {
+          const parsed = JSON.parse(error.message);
+          if (parsed?.error) message = parsed.error;
+        } catch {
+          if (data?.error) message = data.error;
+        }
+        if (data?.error) message = data.error;
+        throw new Error(message);
+      }
+
+      if (!data || data.error) {
+        throw new Error(data?.error || "Generation failed. Please try again.");
+      }
+
+      const generated = data as GeneratedContent;
       setResult(generated);
+
+      // Count usage only on successful generation
+      localStorage.setItem("usage_count", String(usageCount + 1));
+      setRemaining(Math.max(0, 5 - (usageCount + 1)));
 
       // Save to history
       const history = JSON.parse(localStorage.getItem("pb_history") || "[]");
@@ -125,9 +130,16 @@ localStorage.setItem("usage_count", String(usageCount + 1));
       });
       localStorage.setItem("pb_history", JSON.stringify(history));
 
-      setLoading(false);
       toast({ title: "Description generated!" });
-    }, 1500);
+    } catch (err) {
+      toast({
+        title: "Generation failed",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const copyToClipboard = (text: string) => {
