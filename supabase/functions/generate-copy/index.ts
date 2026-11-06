@@ -1,4 +1,3 @@
-import { jsonSchema } from "npm:ai@5";
 import { createResponsesCall } from "../_shared/responses.ts";
 
 const corsHeaders = {
@@ -18,54 +17,17 @@ const LANGUAGE_NAMES: Record<string, string> = {
   portuguese: "Portuguese",
 };
 
-// Strict-compatible schema: object root, every property required, additionalProperties false.
-const copySchema = jsonSchema({
-  type: "object",
-  additionalProperties: false,
-  required: [
-    "seoTitle",
-    "shortDescription",
-    "longDescription",
-    "bulletPoints",
-    "seoKeywords",
-    "adCopy",
-  ],
-  properties: {
-    seoTitle: {
-      type: "string",
-      description:
-        "One professional, attractive, SEO-friendly product title optimized for e-commerce conversion. Natural and readable, under 70 characters.",
-    },
-    shortDescription: {
-      type: "string",
-      description:
-        "A concise, persuasive product description (2-3 sentences) highlighting the most important benefits, explaining the product's value, and encouraging purchase. No generic marketing phrases.",
-    },
-    longDescription: {
-      type: "string",
-      description:
-        "A professional e-commerce description (150-250 words) with an engaging introduction, product features, customer benefits, practical use cases, a persuasive conclusion and a natural call to action. Paragraphs separated by blank lines.",
-    },
-    bulletPoints: {
-      type: "array",
-      items: { type: "string" },
-      description:
-        "Exactly 5 clear, persuasive bullet points highlighting key features, practical benefits, product advantages, and reasons to choose the product.",
-    },
-    seoKeywords: {
-      type: "array",
-      items: { type: "string" },
-      description:
-        "8-10 relevant search keywords or short phrases real shoppers would type. Natural, no keyword stuffing.",
-    },
-    adCopy: {
-      type: "array",
-      items: { type: "string" },
-      description:
-        "Exactly 3 advertising texts, each prefixed with its platform label: 'Facebook Ad: ...', 'Instagram Ad: ...', 'TikTok Ad: ...'. Each adapted to the platform's style with an attention-grabbing hook, persuasive copy, and an appropriate call to action.",
-    },
-  },
-});
+// The exact JSON shape the model must return. Embedded in the system prompt and
+// enforced again by validateOutput on the parsed result.
+const OUTPUT_CONTRACT = `Respond with ONLY a single JSON object (no markdown, no code fences, no commentary) with exactly these keys:
+{
+  "seoTitle": "One professional, attractive, SEO-friendly product title optimized for e-commerce conversion. Natural and readable, under 70 characters.",
+  "shortDescription": "A concise, persuasive product description (2-3 sentences) highlighting the most important benefits, explaining the product's value, and encouraging purchase. No generic marketing phrases.",
+  "longDescription": "A professional e-commerce description (150-250 words) with an engaging introduction, product features, customer benefits, practical use cases, a persuasive conclusion and a natural call to action. Paragraphs separated by blank lines.",
+  "bulletPoints": ["Exactly 5 clear, persuasive bullet points highlighting key features, practical benefits, product advantages, and reasons to choose the product."],
+  "seoKeywords": ["8-10 relevant search keywords or short phrases real shoppers would type. Natural, no keyword stuffing."],
+  "adCopy": ["Exactly 3 advertising texts, each prefixed with its platform label: 'Facebook Ad: ...', 'Instagram Ad: ...', 'TikTok Ad: ...'. Each adapted to the platform's style with an attention-grabbing hook, persuasive copy, and an appropriate call to action."]
+}`;
 
 const SYSTEM_PROMPT = `You are an elite e-commerce copywriter and SEO specialist. You generate high-converting, product-specific sales copy.
 
