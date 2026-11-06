@@ -32,12 +32,39 @@ const copySchema = jsonSchema({
     "adCopy",
   ],
   properties: {
-    seoTitle: { type: "string" },
-    shortDescription: { type: "string" },
-    longDescription: { type: "string" },
-    bulletPoints: { type: "array", items: { type: "string" } },
-    seoKeywords: { type: "array", items: { type: "string" } },
-    adCopy: { type: "array", items: { type: "string" } },
+    seoTitle: {
+      type: "string",
+      description:
+        "One professional, attractive, SEO-friendly product title optimized for e-commerce conversion. Natural and readable, under 70 characters.",
+    },
+    shortDescription: {
+      type: "string",
+      description:
+        "A concise, persuasive product description (2-3 sentences) highlighting the most important benefits, explaining the product's value, and encouraging purchase. No generic marketing phrases.",
+    },
+    longDescription: {
+      type: "string",
+      description:
+        "A professional e-commerce description (150-250 words) with an engaging introduction, product features, customer benefits, practical use cases, a persuasive conclusion and a natural call to action. Paragraphs separated by blank lines.",
+    },
+    bulletPoints: {
+      type: "array",
+      items: { type: "string" },
+      description:
+        "Exactly 5 clear, persuasive bullet points. Each highlights a key feature, practical benefit, product advantage, or reason to choose the product. Each must be a full, specific selling point — never a bare label like 'Price: $X'.",
+    },
+    seoKeywords: {
+      type: "array",
+      items: { type: "string" },
+      description:
+        "8-10 relevant search keywords or short phrases real shoppers would type. Natural, no keyword stuffing.",
+    },
+    adCopy: {
+      type: "array",
+      items: { type: "string" },
+      description:
+        "Exactly 3 advertising texts. Element 1 MUST start with 'Facebook Ad: ' (conversational, benefit-led), element 2 MUST start with 'Instagram Ad: ' (visual, aspirational, hashtag-friendly), element 3 MUST start with 'TikTok Ad: ' (bold, trend-aware, punchy hook). Each has an attention-grabbing hook, persuasive copy, and a call to action.",
+    },
   },
 });
 
