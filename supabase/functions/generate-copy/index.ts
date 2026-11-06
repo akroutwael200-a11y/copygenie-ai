@@ -1,3 +1,4 @@
+import { jsonSchema } from "npm:ai@5";
 import { createResponsesCall } from "../_shared/responses.ts";
 
 const corsHeaders = {
@@ -16,6 +17,29 @@ const LANGUAGE_NAMES: Record<string, string> = {
   german: "German",
   portuguese: "Portuguese",
 };
+
+// Strict-compatible schema enforced on the wire via text.format json_schema:
+// object root, every property required, additionalProperties false.
+const copySchema = jsonSchema({
+  type: "object",
+  additionalProperties: false,
+  required: [
+    "seoTitle",
+    "shortDescription",
+    "longDescription",
+    "bulletPoints",
+    "seoKeywords",
+    "adCopy",
+  ],
+  properties: {
+    seoTitle: { type: "string" },
+    shortDescription: { type: "string" },
+    longDescription: { type: "string" },
+    bulletPoints: { type: "array", items: { type: "string" } },
+    seoKeywords: { type: "array", items: { type: "string" } },
+    adCopy: { type: "array", items: { type: "string" } },
+  },
+});
 
 // The exact JSON shape the model must return. Embedded in the system prompt and
 // enforced again by validateOutput on the parsed result.
@@ -125,22 +149,30 @@ Deno.serve(async (req) => {
       { baseURL: GATEWAY_URL, apiKey, model: MODEL },
       [{ role: "user", content: buildPrompt(body) }],
       SYSTEM_PROMPT,
+      copySchema,
     );
 
-    // One-shot feature: the gateway leg streams; we consume the final text
-    // server-side, parse the JSON object and return it.
-    const text = await result.text;
-    const cleaned = text
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/```\s*$/, "")
-      .trim();
-
+    // One-shot feature: the gateway leg streams; we consume the final typed
+    // object server-side and return it as JSON. Fallback: parse the final text.
     let parsed: unknown;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch {
-      console.error("generate-copy: unparseable model output:", text.slice(0, 500));
-      throw new Error("AI returned an invalid result.");
+    let lastPartial: unknown;
+    for await (const partial of result.experimental_partialOutputStream) {
+      if (partial !== undefined) lastPartial = partial;
+    }
+    parsed = lastPartial;
+
+    if (parsed === undefined) {
+      const text = await result.text;
+      const cleaned = text
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/```\s*$/, "")
+        .trim();
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch {
+        console.error("generate-copy: unparseable model output:", text.slice(0, 500));
+        throw new Error("AI returned an invalid result.");
+      }
     }
 
     const output = validateOutput(parsed);
