@@ -1,7 +1,9 @@
-# Generator completion
+# SaaS accounts and persistent history
 
-- [x] Deploy the pending platform-labeled ad copy and richer bullet-point prompts.
-- [x] Verify real generation for an English product and a French luxury product.
-- [x] Verify all output tabs, copying, and saved-history readback in the app.
+- [ ] Add real registration, login, logout, recovery and protected account pages.
+- [ ] Preserve profile settings and implement secure account deletion.
+- [ ] Persist successful generations with owner-only access and deletion.
+- [ ] Enforce five successful generations per UTC day on the server, including concurrent requests.
+- [ ] Test accounts, recovery, history across sessions, user isolation and quota rules.
 
-Scope: preserve the existing design, pricing, daily limit, and current sign-in/history behavior. Real account authentication and cloud history are not part of this continuation.
+Scope: preserve existing design, pricing and AI generation. No subscriptions or payments.
