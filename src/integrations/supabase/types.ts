@@ -14,13 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      generation_requests: {
+        Row: {
+          created_at: string
+          id: string
+          status: string
+          usage_day: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string
+          usage_day?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string
+          usage_day?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generation_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generations: {
+        Row: {
+          category: string
+          content: Json
+          created_at: string
+          generation_type: string
+          id: string
+          language: string
+          product_name: string
+          tone: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          content: Json
+          created_at?: string
+          generation_type?: string
+          id?: string
+          language: string
+          product_name: string
+          tone: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: Json
+          created_at?: string
+          generation_type?: string
+          id?: string
+          language?: string
+          product_name?: string
+          tone?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      finish_generation: {
+        Args: {
+          p_category: string
+          p_content: Json
+          p_language: string
+          p_product_name: string
+          p_request_id: string
+          p_tone: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      generation_quota: { Args: never; Returns: number }
+      reserve_generation: { Args: { p_user_id: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
